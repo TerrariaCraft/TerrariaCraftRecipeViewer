@@ -1,0 +1,7 @@
+
+key.category.tcrecipeview=TC Recipe Viewing
+key.tcrecipeview.recipes=View Recipes
+key.tcrecipeview.usages=View Usages
+
+gui.tcrecipeview.recipes_widget.target.0=Recipes for %s
+gui.tcrecipeview.recipes_widget.target.1=Uses of %s

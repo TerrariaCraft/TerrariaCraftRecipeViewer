@@ -1,0 +1,10 @@
+[
+	{
+	  "modid": "tcrecipeview",
+	  "name": "Terraria Craft Recipe Viewer",
+	  "description": "A simple recipe viewer mod for Terraria Craft designed to fit in with the general TC's atmosphere and crafting system.",
+	  "version": "${version}",
+	  "mcversion": "${mcversion}",
+	  "authorList": ["Zeitheron"]
+	}
+]

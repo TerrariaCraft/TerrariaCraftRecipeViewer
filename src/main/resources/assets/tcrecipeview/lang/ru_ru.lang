@@ -1,0 +1,7 @@
+
+key.category.tcrecipeview=TC Recipe Viewer
+key.tcrecipeview.recipes=Посмотреть рецепты
+key.tcrecipeview.usages=Посмотреть использования
+
+gui.tcrecipeview.recipes_widget.target.0=Рецепты для %s
+gui.tcrecipeview.recipes_widget.target.1=Использования для %s
