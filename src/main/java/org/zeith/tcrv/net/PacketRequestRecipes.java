@@ -20,7 +20,7 @@ public class PacketRequestRecipes
 	public PacketRequestRecipes(byte kind, ItemStack stack)
 	{
 		this.kind = kind;
-		this.stack = stack;
+		this.stack = stack.copy().splitStack(1);
 	}
 
 	@Override

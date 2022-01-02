@@ -14,6 +14,6 @@ jei_version=4.11.0.206
 mod_id=tcrecipeview
 mod_id_fancy=TerrariaCraftRecipeViewer
 mod_name=Terraria Craft Recipe Viewer
-mod_version=5.1.4
+mod_version=5.1.5
 cf_project=480135
 release_type=release

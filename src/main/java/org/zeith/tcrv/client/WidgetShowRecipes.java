@@ -6,27 +6,38 @@ import com.zeitheron.hammercore.client.utils.texture.gui.DynGuiTex;
 import com.zeitheron.hammercore.client.utils.texture.gui.GuiTexBakery;
 import com.zeitheron.hammercore.utils.ItemStackUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.zeith.terraria.api.crafting.CountableIngredient;
 import org.zeith.terraria.api.crafting.ItemViewPanel;
 import org.zeith.terraria.api.crafting.Recipe;
 import org.zeith.terraria.api.items.ICustomDescriptor;
+import org.zeith.terraria.api.tooltip.I18nTooltipElement;
 import org.zeith.terraria.api.tooltip.StringTooltipElement;
 import org.zeith.terraria.api.tooltip.TooltipBody;
 import org.zeith.terraria.client.gui.api.widget.WidgetBase;
 import org.zeith.terraria.client.render.RenderHelperTC;
+import org.zeith.terraria.init.SoundsTC;
 
 import java.awt.*;
 import java.util.List;
 
+@SideOnly(Side.CLIENT)
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class WidgetShowRecipes
 		extends WidgetBase
 {
@@ -35,14 +46,18 @@ public class WidgetShowRecipes
 	public static int prevTabScrollAmount, tabScrollAmount;
 	protected static boolean prevShowRecipes, prevShowUses;
 
+	public static WidgetShowRecipes activeInstance;
+
 	DynGuiTex tx;
 
 	public ItemStack targetStack = ItemStack.EMPTY;
 	public int targetKind;
 	private final Rectangle box = new Rectangle(), hoverBox = new Rectangle();
 	protected boolean mouseInArea;
+	protected int addDWheel;
 
 	public List<Recipe> recipes;
+	public long lastTick = System.currentTimeMillis();
 
 	public WidgetShowRecipes(List<Recipe> recipes)
 	{
@@ -50,6 +65,9 @@ public class WidgetShowRecipes
 		this.width = 100;
 		this.height = 30;
 		prevTabScrollAmount = tabScrollAmount = 0;
+		activeInstance = this;
+
+		Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundsTC.MENU_OPEN.sound, 1F));
 	}
 
 	@Override
@@ -81,18 +99,16 @@ public class WidgetShowRecipes
 	@Override
 	public void updateWidget()
 	{
+		lastTick = System.currentTimeMillis();
 		prevTabScrollAmount = tabScrollAmount;
-		if(mouseInArea)
-		{
-			int dw = Mouse.getDWheel();
 
-			if(forceTabScrollAmount != null)
-			{
-				tabScrollAmount = Math.max(0, (int) Math.round((double) forceTabScrollAmount * Math.ceil(this.recipes.size()) - 5.0D));
-			} else if(dw != 0)
-			{
-				tabScrollAmount -= dw / 120;
-			}
+		if(forceTabScrollAmount != null)
+		{
+			tabScrollAmount = Math.max(0, (int) Math.round((double) forceTabScrollAmount * Math.ceil(recipes.size()) - 5.0D));
+		} else if(addDWheel != 0)
+		{
+			tabScrollAmount -= addDWheel / 120;
+			addDWheel = 0;
 		}
 
 		tabScrollAmount = Math.max(0, Math.min(tabScrollAmount, (int) Math.ceil(this.recipes.size()) - 5));
@@ -102,6 +118,8 @@ public class WidgetShowRecipes
 	@Override
 	public void drawWidget(float partialTicks, Point mouse)
 	{
+		if(activeInstance != this) return;
+
 		hover = ItemStack.EMPTY;
 
 		box.setBounds(0, 0, width, height);
@@ -114,6 +132,8 @@ public class WidgetShowRecipes
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderItem renderItem = mc.getRenderItem();
 		FontRenderer fontRenderer = mc.fontRenderer;
+
+		TooltipBody body = null;
 
 		{
 			String targetText = I18n.format("gui.tcrecipeview.recipes_widget.target." + targetKind, targetStack.getDisplayName());
@@ -132,10 +152,17 @@ public class WidgetShowRecipes
 			GlStateManager.translate(x - 10, -8.5F, 0);
 			GlStateManager.scale(0.5, 0.5, 0.5);
 			renderItem.renderItemIntoGUI(targetStack, 0, 0);
+
+			box.setBounds((int) (x - 10), (int) -8.5F, 8, 8);
+			if(box.contains(mouse))
+			{
+				renderItem.renderItemIntoGUI(new ItemStack(Blocks.BARRIER), 0, 0);
+				body = new TooltipBody();
+				body.append(new I18nTooltipElement("spectatorMenu.close"));
+			}
+
 			GlStateManager.popMatrix();
 		}
-
-		TooltipBody body = null;
 
 		Scissors.begin();
 		Scissors.scissor((int) getActualX(), (int) getActualY() + 3, width, height - 6);
@@ -258,6 +285,25 @@ public class WidgetShowRecipes
 	@Override
 	public void mouseClick(Point mouse, int button)
 	{
+		if(button == 0)
+		{
+			Minecraft mc = Minecraft.getMinecraft();
+			RenderItem renderItem = mc.getRenderItem();
+			FontRenderer fontRenderer = mc.fontRenderer;
+
+			String targetText = I18n.format("gui.tcrecipeview.recipes_widget.target." + targetKind, targetStack.getDisplayName());
+			int txtWidth = fontRenderer.getStringWidth(targetText);
+			int subWid = Math.min(txtWidth + 16, this.width - 4);
+
+			box.setBounds((int) ((width - subWid) / 2F + 16 - 10), (int) -8.5F, 8, 8);
+			if(box.contains(mouse))
+			{
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundsTC.MENU_CLOSE.sound, 1F));
+				y = -100000;
+				activeInstance = null;
+			}
+		}
+
 		if(!hover.isEmpty())
 		{
 			switch(button)
@@ -270,5 +316,20 @@ public class WidgetShowRecipes
 					break;
 			}
 		}
+	}
+
+	public static WidgetShowRecipes getActiveInstance()
+	{
+		if(activeInstance != null && System.currentTimeMillis() - activeInstance.lastTick >= 1000L)
+			return activeInstance = null;
+		return activeInstance;
+	}
+
+	@SubscribeEvent
+	public static void mouseScroll(GuiScreenEvent.MouseInputEvent.Pre e)
+	{
+		WidgetShowRecipes i = getActiveInstance();
+		if(i != null && i.mouseInArea)
+			i.addDWheel += Mouse.getDWheel();
 	}
 }
