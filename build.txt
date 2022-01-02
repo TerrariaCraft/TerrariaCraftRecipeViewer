@@ -1,7 +1,7 @@
 #Project info
 author=Zeitheron
-start_git_commit=?
-git_commit=https://gitlab.com/Zeitheron/???/commit/{{hash}}
+start_git_commit=f0c1594b1452c9090b63c0ce9655ce778e47e3c9
+git_commit=https://github.com/Zeitheron/TerrariaCraftRecipeViewer
 
 #Runtime info
 forge_version=14.23.5.2847
@@ -14,6 +14,6 @@ jei_version=4.11.0.206
 mod_id=tcrecipeview
 mod_id_fancy=TerrariaCraftRecipeViewer
 mod_name=Terraria Craft Recipe Viewer
-mod_version=5.1.5
+mod_version=5.1.6
 cf_project=480135
 release_type=release

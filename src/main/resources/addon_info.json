@@ -6,7 +6,8 @@
 		"Zeitheron"
 	],
 	"website": "https://www.curseforge.com/minecraft/mc-mods/tc-recipe-viewer",
-	"issuesPage": "https://github.com/Zeitheron/TerrariaCraftRecipeViewer/issues",
+	"issues_page": "https://github.com/Zeitheron/TerrariaCraftRecipeViewer/issues",
+	"icon_path": "assets/tcrecipeview/icon.png",
 	"social": {
 		"discord": "https://discord.terrariacraft.com",
 		"twitter": "https://twitter.com/TerrariaCraftMC"
