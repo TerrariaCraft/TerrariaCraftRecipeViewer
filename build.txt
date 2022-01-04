@@ -7,13 +7,13 @@ git_commit=https://github.com/Zeitheron/TerrariaCraftRecipeViewer
 forge_version=14.23.5.2847
 minecraft_version=1.12.2
 mcp=stable_39
-tc_version=12.5.28
+tc_version=12.5.29
 jei_version=4.11.0.206
 
 #Mod info
 mod_id=tcrecipeview
 mod_id_fancy=TerrariaCraftRecipeViewer
 mod_name=Terraria Craft Recipe Viewer
-mod_version=5.1.6
+mod_version=5.2.7
 cf_project=480135
 release_type=release

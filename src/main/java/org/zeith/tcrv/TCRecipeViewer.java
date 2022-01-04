@@ -36,6 +36,10 @@ public class TCRecipeViewer
 		proxy.setup();
 	}
 
+	public static final KeyMapTC.KeyButtonTC BACKTRACK_RECIPES = new KeyMapTC.KeyButtonTC(new ResourceLocation(MOD_ID, "backtrack"), (data, state) ->
+	{
+	});
+
 	public static final KeyMapTC.KeyButtonTC VIEW_RECIPES = new KeyMapTC.KeyButtonTC(new ResourceLocation(MOD_ID, "recipes"), (data, state) ->
 	{
 	});

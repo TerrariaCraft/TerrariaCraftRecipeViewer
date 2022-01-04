@@ -26,6 +26,7 @@ import org.zeith.terraria.common.data.player.PlayerDataTC;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -112,11 +113,21 @@ public class PacketShowRecipes
 		{
 			TerrariaGui<?> tg = (TerrariaGui<?>) gui;
 
-			tg.widgets.removeIf(w -> w instanceof WidgetShowRecipes);
+			AtomicReference<WidgetShowRecipes> parent = new AtomicReference<>();
+
+			tg.widgets.removeIf(w ->
+			{
+				if(w instanceof WidgetShowRecipes)
+				{
+					parent.set((WidgetShowRecipes) w);
+					return true;
+				}
+				return false;
+			});
 
 			if(!recipes.isEmpty())
 			{
-				WidgetShowRecipes wgSr = new WidgetShowRecipes(recipes);
+				WidgetShowRecipes wgSr = new WidgetShowRecipes(parent.get(), recipes);
 				wgSr.targetStack = stack;
 				wgSr.targetKind = kind;
 				wgSr.initWidget(gui.width, gui.height);

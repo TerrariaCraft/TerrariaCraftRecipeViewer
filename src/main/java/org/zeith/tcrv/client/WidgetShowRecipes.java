@@ -2,9 +2,11 @@ package org.zeith.tcrv.client;
 
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.Scissors;
+import com.zeitheron.hammercore.client.utils.UtilsFX;
 import com.zeitheron.hammercore.client.utils.texture.gui.DynGuiTex;
 import com.zeitheron.hammercore.client.utils.texture.gui.GuiTexBakery;
 import com.zeitheron.hammercore.utils.ItemStackUtil;
+import io.netty.util.internal.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
@@ -22,6 +24,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.zeith.tcrv.TCRecipeViewer;
+import org.zeith.tcrv.proxy.ClientProxy;
 import org.zeith.terraria.api.crafting.CountableIngredient;
 import org.zeith.terraria.api.crafting.ItemViewPanel;
 import org.zeith.terraria.api.crafting.Recipe;
@@ -44,7 +48,7 @@ public class WidgetShowRecipes
 	public static ItemStack hover = ItemStack.EMPTY;
 	public static Float forceTabScrollAmount;
 	public static int prevTabScrollAmount, tabScrollAmount;
-	protected static boolean prevShowRecipes, prevShowUses;
+	protected static boolean prevShowRecipes, prevShowUses, prevBacktrack;
 
 	public static WidgetShowRecipes activeInstance;
 
@@ -56,11 +60,14 @@ public class WidgetShowRecipes
 	protected boolean mouseInArea;
 	protected int addDWheel;
 
+	public WidgetShowRecipes parent;
+
 	public List<Recipe> recipes;
 	public long lastTick = System.currentTimeMillis();
 
-	public WidgetShowRecipes(List<Recipe> recipes)
+	public WidgetShowRecipes(WidgetShowRecipes parent, List<Recipe> recipes)
 	{
+		this.parent = parent;
 		this.recipes = recipes;
 		this.width = 100;
 		this.height = 30;
@@ -115,11 +122,32 @@ public class WidgetShowRecipes
 		prevTabScrollAmount = Math.max(0, Math.min(prevTabScrollAmount, (int) Math.ceil(this.recipes.size()) - 5));
 	}
 
+	public boolean performBacktrack()
+	{
+		if(parent != null)
+		{
+			recipes = parent.recipes;
+			parent = parent.parent;
+			targetStack = parent.targetStack;
+			targetKind = parent.targetKind;
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public void drawWidget(float partialTicks, Point mouse)
 	{
 		if(activeInstance != this) return;
 
+		if(Keyboard.isKeyDown(ClientProxy.BACKTRACK_RECIPES.getKeyCode()) != prevBacktrack)
+		{
+			prevBacktrack = !prevBacktrack;
+			if(prevBacktrack)
+				performBacktrack();
+		}
+
+		hoverBox.y = -1000;
 		hover = ItemStack.EMPTY;
 
 		box.setBounds(0, 0, width, height);
@@ -212,15 +240,27 @@ public class WidgetShowRecipes
 				box.setBounds(width - 21 - 10, y + 4, 8, 8);
 				GlStateManager.translate(box.x, box.y, 0);
 				GlStateManager.scale(box.width / 16F, box.height / 16F, box.width / 16F);
-				renderItem.renderItemAndEffectIntoGUI(stack, 0, 0);
+
+				if(!stack.isEmpty())
+					renderItem.renderItemAndEffectIntoGUI(stack, 0, 0);
+				else
+				{
+					UtilsFX.bindTexture(TCRecipeViewer.MOD_ID, "textures/gui/missing.png");
+					RenderUtil.drawFullRectangleFit(0, 0, 16, 16);
+				}
+
 				GlStateManager.popMatrix();
 
-				if(!stack.isEmpty() && box.contains(mouse) && mouse.y > 3 && mouse.y < height - 4)
+				if(box.contains(mouse) && mouse.y > 3 && mouse.y < height - 4)
 				{
-					hoverBox.setBounds(box);
-					hover = stack;
-					body = new TooltipBody();
-					body.append(new StringTooltipElement(r.predicate.getDependency()));
+					String dep = r.predicate.getDependency();
+					if(!StringUtil.isNullOrEmpty(dep))
+					{
+						body = new TooltipBody();
+						body.append(new StringTooltipElement(r.predicate.getDependency()));
+						hoverBox.setBounds(box);
+						hover = stack;
+					}
 				}
 			}
 
@@ -238,6 +278,7 @@ public class WidgetShowRecipes
 				hover = r.output;
 				body = new TooltipBody();
 				ICustomDescriptor.generateTooltip(hover, body, mc.player);
+				body.append(new StringTooltipElement(r.predicate.getDependency()));
 			}
 
 			if(y >= height - 7 - 16)
@@ -261,13 +302,15 @@ public class WidgetShowRecipes
 				if(prevShowUses)
 					ItemViewPanel.getInstance().showUses(hover);
 			}
+		}
 
+		if(hoverBox.y >= 0)
+		{
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0F, 0.0F, 400.0F);
 			GlStateManager.disableTexture2D();
 			RenderUtil.drawColoredModalRect(hoverBox.x, hoverBox.y, hoverBox.width, hoverBox.height, -1426063361);
 			GlStateManager.enableTexture2D();
-
 			GlStateManager.popMatrix();
 		}
 
