@@ -127,9 +127,9 @@ public class WidgetShowRecipes
 		if(parent != null)
 		{
 			recipes = parent.recipes;
-			parent = parent.parent;
 			targetStack = parent.targetStack;
 			targetKind = parent.targetKind;
+			parent = parent.parent;
 			return true;
 		}
 		return false;
