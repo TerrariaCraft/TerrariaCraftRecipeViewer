@@ -22,7 +22,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.zeith.tcrv.TCRecipeViewer;
 import org.zeith.tcrv.proxy.ClientProxy;
@@ -35,6 +34,7 @@ import org.zeith.terraria.api.tooltip.StringTooltipElement;
 import org.zeith.terraria.api.tooltip.TooltipBody;
 import org.zeith.terraria.client.gui.api.widget.WidgetBase;
 import org.zeith.terraria.client.render.RenderHelperTC;
+import org.zeith.terraria.client.util.KeyBindHelper;
 import org.zeith.terraria.init.SoundsTC;
 
 import java.awt.*;
@@ -140,7 +140,7 @@ public class WidgetShowRecipes
 	{
 		if(activeInstance != this) return;
 
-		if(Keyboard.isKeyDown(ClientProxy.BACKTRACK_RECIPES.getKeyCode()) != prevBacktrack)
+		if(KeyBindHelper.isKeyDownNow(ClientProxy.BACKTRACK_RECIPES) != prevBacktrack)
 		{
 			prevBacktrack = !prevBacktrack;
 			if(prevBacktrack)
@@ -289,14 +289,15 @@ public class WidgetShowRecipes
 		{
 			KeyBinding showRecipe = ItemViewPanel.getInstance().getShowRecipesKey();
 			KeyBinding showUses = ItemViewPanel.getInstance().getShowUsesKey();
-			if(showRecipe != null && Keyboard.isKeyDown(showRecipe.getKeyCode()) != prevShowRecipes)
+
+			if(KeyBindHelper.isKeyDownNow(showRecipe) != prevShowRecipes)
 			{
 				prevShowRecipes = !prevShowRecipes;
 				if(prevShowRecipes)
 					ItemViewPanel.getInstance().showRecipes(hover);
 			}
 
-			if(showUses != null && Keyboard.isKeyDown(showUses.getKeyCode()) != prevShowUses)
+			if(KeyBindHelper.isKeyDownNow(showUses) != prevShowUses)
 			{
 				prevShowUses = !prevShowUses;
 				if(prevShowUses)
@@ -331,7 +332,6 @@ public class WidgetShowRecipes
 		if(button == 0)
 		{
 			Minecraft mc = Minecraft.getMinecraft();
-			RenderItem renderItem = mc.getRenderItem();
 			FontRenderer fontRenderer = mc.fontRenderer;
 
 			String targetText = I18n.format("gui.tcrecipeview.recipes_widget.target." + targetKind, targetStack.getDisplayName());
