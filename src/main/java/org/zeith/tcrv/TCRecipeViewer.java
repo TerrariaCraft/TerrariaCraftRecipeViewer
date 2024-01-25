@@ -15,7 +15,7 @@ import org.zeith.terraria.utils.forge.DeferredRegistries;
 		dependencies = "required-after:terraria",
 		version = "@VERSION@",
 		certificateFingerprint = "9f5e2a811a8332a842b34f6967b7db0ac4f24856",
-		updateJSON = "http://dccg.herokuapp.com/api/fmluc/480135"
+		updateJSON = "https://api.modrinth.com/updates/LmQmk6VW/forge_updates.json"
 )
 public class TCRecipeViewer
 		implements ITerrariaMod
