@@ -1,47 +1,49 @@
 package org.zeith.tcrv.net;
 
-import com.zeitheron.hammercore.net.IPacket;
-import com.zeitheron.hammercore.net.MainThreaded;
-import com.zeitheron.hammercore.net.PacketContext;
+import com.zeitheron.hammercore.net.*;
+import lombok.var;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+
+import java.io.IOException;
 
 @MainThreaded
 public class PacketRequestRecipes
 		implements IPacket
 {
-	byte kind;
-	ItemStack stack;
-
+	protected byte kind;
+	protected ItemStack stack;
+	
 	public PacketRequestRecipes()
 	{
 	}
-
+	
 	public PacketRequestRecipes(byte kind, ItemStack stack)
 	{
 		this.kind = kind;
 		this.stack = stack.copy().splitStack(1);
 	}
-
+	
 	@Override
-	public void writeToNBT(NBTTagCompound nbt)
+	public void write(PacketBuffer buf)
 	{
-		nbt.setByte("K", kind);
-		nbt.setTag("T", stack.writeToNBT(new NBTTagCompound()));
+		buf.writeByte(kind);
+		buf.writeItemStack(stack);
 	}
-
+	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void read(PacketBuffer buf)
+			throws IOException
 	{
-		kind = nbt.getByte("K");
-		stack = new ItemStack(nbt.getCompoundTag("T"));
+		kind = buf.readByte();
+		stack = buf.readItemStack();
 	}
-
+	
 	@Override
 	public void executeOnServer2(PacketContext net)
 	{
-		PacketShowRecipes
-				.create(this, net.getSender())
-				.to(net.getSender());
+		var v = PacketShowRecipes.create(this, net.getSender());
+		if(!v.getRecipes().isEmpty())
+			net.withReply(v);
 	}
 }

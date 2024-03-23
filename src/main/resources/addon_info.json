@@ -5,7 +5,7 @@
 	"authors": [
 		"Zeitheron"
 	],
-	"website": "https://www.curseforge.com/minecraft/mc-mods/tc-recipe-viewer",
+	"website": "https://modrinth.com/mod/terrariacraft-recipeviewer",
 	"issues_page": "https://github.com/Zeitheron/TerrariaCraftRecipeViewer/issues",
 	"icon_path": "assets/tcrecipeview/icon.png",
 	"social": {
@@ -14,7 +14,7 @@
 	},
 	"compatibility": {
 		"public_versions": [
-			"[12.5.31,12.6)"
+			"[12.6.1,12.7)"
 		],
 		"idev_versions": [
 			"[idev-,)"

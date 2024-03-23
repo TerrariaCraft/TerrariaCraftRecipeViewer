@@ -1,0 +1,2 @@
+gradlew buildAndUploadMod publishAllPublicationsToMavenRepository
+pause

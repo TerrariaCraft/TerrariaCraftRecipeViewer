@@ -1,19 +1,18 @@
-#Project info
-author=Zeitheron
-start_git_commit=f0c1594b1452c9090b63c0ce9655ce778e47e3c9
-git_commit=https://github.com/Zeitheron/TerrariaCraftRecipeViewer
-
-#Runtime info
-forge_version=14.23.5.2847
-minecraft_version=1.12.2
-mcp=stable_39
-tc_version=12.5.32
-jei_version=4.11.0.206
-
 #Mod info
 mod_id=tcrecipeview
 mod_id_fancy=TerrariaCraftRecipeViewer
-mod_name=Terraria Craft Recipe Viewer
-mod_version=5.2.8
+mod_name=TerrariaCraft RecipeViewer
+mod_version=6.0.0
+author=Zeitheron
+
+#Runtime info
+forge_version=14.23.5.2860
+minecraft_version=1.12.2
+
+# Maven Info
+maven_group=org.zeith.terraria.TerrariaCraftRecipeViewer
+maven_url=file:///SERVER//Maven
+
 cf_project=480135
+modrinth_project=LmQmk6VW
 release_type=release
