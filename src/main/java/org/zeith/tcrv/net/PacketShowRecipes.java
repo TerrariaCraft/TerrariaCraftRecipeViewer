@@ -5,7 +5,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.*;
 import net.minecraft.util.*;
 import net.minecraftforge.common.util.Constants;
@@ -36,15 +36,18 @@ public class PacketShowRecipes
 		ItemStack stack = packet.stack;
 		boolean usages = packet.kind == 1;
 		
-		PlayerDataTC pd = PlayerDataTC.get(mp);
+		Item desiredItem = stack.getItem();
 		
 		Stream<Recipe> recipeStream =
 				usages
 				? CraftingRegistry.findUses(stack).stream()
-				: CraftingRegistry.recipes().filter(recipe -> recipe.output.isItemEqualIgnoreDurability(stack));
+				: CraftingRegistry.recipes().filter(recipe -> recipe.output.getItem() == desiredItem);
 		
 		if(RecipeRestriction.SPOILER_FREE_MODE.get())
+		{
+			PlayerDataTC pd = PlayerDataTC.get(mp);
 			recipeStream = recipeStream.filter(recipe -> RecipeRestriction.passesRestriction(recipe, pd));
+		}
 		
 		List<ResourceLocation> recipes = recipeStream
 				.map(Recipe::getId)
