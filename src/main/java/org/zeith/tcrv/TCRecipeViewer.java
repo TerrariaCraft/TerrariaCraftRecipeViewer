@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.*;
 import org.zeith.tcrv.proxy.CommonProxy;
 import org.zeith.terraria.api.mod.ITerrariaMod;
-import org.zeith.terraria.common.data.player.KeyMapTC;
+import org.zeith.terraria.common.data.player.KeyButtonTC;
 
 @Mod(
 		modid = TCRecipeViewer.MOD_ID,
@@ -34,15 +34,7 @@ public class TCRecipeViewer
 		proxy.setup();
 	}
 
-	public static final KeyMapTC.KeyButtonTC BACKTRACK_RECIPES = new KeyMapTC.KeyButtonTC(new ResourceLocation(MOD_ID, "backtrack"), (data, state) ->
-	{
-	});
-
-	public static final KeyMapTC.KeyButtonTC VIEW_RECIPES = new KeyMapTC.KeyButtonTC(new ResourceLocation(MOD_ID, "recipes"), (data, state) ->
-	{
-	});
-
-	public static final KeyMapTC.KeyButtonTC VIEW_USAGES = new KeyMapTC.KeyButtonTC(new ResourceLocation(MOD_ID, "uses"), (data, state) ->
-	{
-	});
+	public static final KeyButtonTC BACKTRACK_RECIPES = new KeyButtonTC(new ResourceLocation(MOD_ID, "backtrack"));
+	public static final KeyButtonTC VIEW_RECIPES = new KeyButtonTC(new ResourceLocation(MOD_ID, "recipes"));
+	public static final KeyButtonTC VIEW_USAGES = new KeyButtonTC(new ResourceLocation(MOD_ID, "uses"));
 }

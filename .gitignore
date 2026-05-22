@@ -21,6 +21,8 @@ build
 
 # Dev assets
 /run/*
+/libraries/
+local.properties
 
 # other
 *.rar

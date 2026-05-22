@@ -36,8 +36,8 @@ import org.zeith.terraria.client.gui.api.widget.WidgetBase;
 import org.zeith.terraria.client.render.RenderHelperTC;
 import org.zeith.terraria.client.util.KeyBindHelper;
 import org.zeith.terraria.init.SoundsTC;
+import org.zeith.terraria.utils.math.*;
 
-import java.awt.*;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)

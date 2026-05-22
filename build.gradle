@@ -13,26 +13,29 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: 'java'
-apply from: 'https://maven.zeith.org/org/zeith/FixupFML/fix-v1.0.1-usercache.gradle'
+// apply from: 'https://maven.zeith.org/org/zeith/FixupFML/fix-v1.0.1-usercache.gradle'
 
-ext.configFile = file("build.txt")
-configFile.withReader {
+file("build.txt").withReader {
     def prop = new Properties()
     prop.load(it)
     project.ext.config = new ConfigSlurper().parse(prop)
-    project.ext.hasConfig = { key ->
-        return config.isSet(key);
+    project.ext.hasConfig = { String key ->
+        return config.isSet(key)
     }
 }
 
+def localProps = new Properties()
+rootProject.file("local.properties").withInputStream {localProps.load(it)}
+def local = new ConfigSlurper().parse(localProps)
+
 version = "${config.mod_version}"
 group = "org.zeith.${config.mod_id}"
-archivesBaseName = "${config.mod_id_fancy}-${config.minecraft_version}"
+archivesBaseName = "${config.mod_id_fancy}-${local.minecraft_version}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'stable', version: '39-1.12'
+    mappings channel: local.mcp_channel, version: local.mcp_version
     accessTransformers(
             file('libraries/tc_at.cfg'), // required for TC to function
             file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -55,7 +58,9 @@ minecraft {
             property 'log4j.configurationFile', 'log4j2.xml'
             args([
                     "-username",
-                    System.env.MC_USERNAME
+                    local.mc_username,
+                    "-uuid",
+                    local.mc_uuid
             ])
         }
 
@@ -88,16 +93,17 @@ repositories {
     maven {
         url = "https://jitpack.io"
     }
-    flatDir { dirs "libraries/${config.minecraft_version}/all" }
-    flatDir { dirs "libraries/${config.minecraft_version}/classpathOnly" }
-    flatDir { dirs "libraries/${config.minecraft_version}/runtimeOnly" }
+    flatDir { dirs "libraries/${local.minecraft_version}/all" }
+    flatDir { dirs "libraries/${config.minecraft_version}/mods" }
+    flatDir { dirs "libraries/${local.minecraft_version}/classpathOnly" }
+    flatDir { dirs "libraries/${local.minecraft_version}/runtimeOnly" }
 }
 
 dependencies {
     implementation("net.minecraftforge:mergetool:0.2.3.3") { force = true }
-    minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
+    minecraft "net.minecraftforge:forge:${local.minecraft_version}-${local.forge_version}"
 
-    def deps = new String(Base64.getDecoder().decode(tc_build_data)).replace('\r', '').replace('\n', '').split("[|]")
+    def deps = new String(Base64.getDecoder().decode(local.tc_build_data)).replace('\r', '').replace('\n', '').split("[|]")
     for (final def d in deps) {
         if (d.endsWith(">")) {
             d = d.substring(0, d.length() - 1)
@@ -111,12 +117,12 @@ dependencies {
     }
 
     ////// UTILITY STUFF //////
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
-    compileOnly 'org.jetbrains:annotations:24.0.1'
+    compileOnly "org.projectlombok:lombok:$lombok"
+    annotationProcessor "org.projectlombok:lombok:$lombok"
+    compileOnly "org.jetbrains:annotations:$jb_annotations"
     ///////////////////////////
 
-    def libraries = new File(file("libraries"), "${config.minecraft_version}")
+    def libraries = new File(file("libraries"), "${local.minecraft_version}")
     if (!libraries.isDirectory()) libraries.mkdirs()
 
     def libDir = new File(libraries, "all");
@@ -127,6 +133,18 @@ dependencies {
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
                 implementation project.dependencies.create("_all:$modartifact:$modversion")
+            }
+        }
+    } else libDir.mkdir();
+
+    libDir = new File(libraries, "mods");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
+            def splitPos = file.name.indexOf("-")
+            def modartifact = file.name.substring(0, splitPos)
+            def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
+            dependencies {
+                tcModsFolder fg.deobf(project.dependencies.create("_all:$modartifact:$modversion"))
             }
         }
     } else libDir.mkdir();
@@ -166,7 +184,7 @@ task cleanReplaces(type: Delete) {
 }
 
 def replaceMap = [
-        "required-after:terraria": "required-after:terraria@[${config.tc_version},)",
+        "required-after:terraria": "required-after:terraria@[${local.tc_version},)",
         "@VERSION@"              : config.mod_version
 ];
 
@@ -197,11 +215,11 @@ if (tasks.contains(build) && !intellijIDE) {
 
 processResources {
     inputs.property "version", config.mod_version
-    inputs.property "mcversion", config.minecraft_version
+    inputs.property "mcversion", local.minecraft_version
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
         include 'pack.mcmeta'
-        expand 'version': config.mod_version, 'mcversion': config.minecraft_version
+        expand 'version': config.mod_version, 'mcversion': local.minecraft_version
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
     from(sourceSets.main.resources.srcDirs) {
@@ -304,14 +322,14 @@ tasks.register('copyTerrariaCraftDepsToRuntime') {
 afterEvaluate {
     tasks['downloadAssets'].dependsOn.add('copyTerrariaCraftDepsToRuntime')
 
-    tasks['downloadAssets'].dependsOn.add('fixupForgeJars')
+    // tasks['downloadAssets'].dependsOn.add('fixupForgeJars')
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = "${config.maven_group}"
-            artifactId = config.mod_id_fancy + "-" + config.minecraft_version
+            groupId = config.maven_group
+            artifactId = config.mod_id_fancy + "-" + local.minecraft_version
 
             artifact jar
             artifact srcJar
