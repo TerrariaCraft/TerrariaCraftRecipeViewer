@@ -2,6 +2,7 @@ package org.zeith.tcrv.net;
 
 import com.zeitheron.hammercore.net.*;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -10,18 +11,17 @@ import net.minecraft.nbt.*;
 import net.minecraft.util.*;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.*;
-import org.zeith.tcrv.TCRecipeViewer;
 import org.zeith.tcrv.api.RecipeRestriction;
 import org.zeith.tcrv.client.WidgetShowRecipes;
 import org.zeith.terraria.api.crafting.*;
 import org.zeith.terraria.client.gui.api.TerrariaGui;
 import org.zeith.terraria.common.data.player.PlayerDataTC;
-import org.zeith.terraria.net.util.Net;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.*;
 
+@Log4j2
 @Getter
 @MainThreaded
 public class PacketShowRecipes
@@ -100,10 +100,8 @@ public class PacketShowRecipes
 		
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
 		
-		if(gui instanceof TerrariaGui)
+		if(gui instanceof TerrariaGui<?> tg)
 		{
-			TerrariaGui<?> tg = (TerrariaGui<?>) gui;
-			
 			AtomicReference<WidgetShowRecipes> parent = new AtomicReference<>();
 			
 			tg.widgets.removeIf(w ->
@@ -122,11 +120,12 @@ public class PacketShowRecipes
 				wgSr.targetStack = stack;
 				wgSr.targetKind = kind;
 				wgSr.initWidget(gui.width, gui.height);
-				((TerrariaGui<?>) gui).widgets.add(0, wgSr);
-				wgSr.setGui((TerrariaGui<?>) gui);
+				tg.widgets.add(0, wgSr);
+				wgSr.setGui(tg);
 			}
 		}
 		
-		TCRecipeViewer.LOG.warn("Ignoring {} missing recipes: {}", missing.size(), missing);
+		if(!missing.isEmpty())
+			log.warn("Ignoring {} missing recipes: {}", missing.size(), missing);
 	}
 }

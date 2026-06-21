@@ -3,7 +3,6 @@ package org.zeith.tcrv;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import org.apache.logging.log4j.*;
 import org.zeith.tcrv.proxy.CommonProxy;
 import org.zeith.terraria.api.mod.ITerrariaMod;
 import org.zeith.terraria.common.data.player.KeyButtonTC;
@@ -19,7 +18,6 @@ import org.zeith.terraria.common.data.player.KeyButtonTC;
 public class TCRecipeViewer
 		implements ITerrariaMod
 {
-	public static final Logger LOG = LogManager.getLogger();
 	public static final String MOD_ID = "tcrecipeview";
 
 	@SidedProxy(serverSide = "org.zeith.tcrv.proxy.CommonProxy", clientSide = "org.zeith.tcrv.proxy.ClientProxy")

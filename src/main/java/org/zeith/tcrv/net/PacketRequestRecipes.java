@@ -1,7 +1,6 @@
 package org.zeith.tcrv.net;
 
 import com.zeitheron.hammercore.net.*;
-import lombok.var;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 

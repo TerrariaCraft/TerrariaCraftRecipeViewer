@@ -2,7 +2,7 @@
 mod_id=tcrecipeview
 mod_id_fancy=TerrariaCraftRecipeViewer
 mod_name=TerrariaCraft RecipeViewer
-mod_version=7.0.1
+mod_version=7.0.2
 author=Zeitheron
 
 #Runtime info

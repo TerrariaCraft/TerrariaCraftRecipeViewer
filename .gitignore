@@ -21,13 +21,9 @@ build
 
 # Dev assets
 /run/*
-/libraries/
-local.properties
+/libraries/1.12.2/
 
 # other
 *.rar
 *.jks
-~ GIT/
-PublicBuilds/
-zCFS/Bedrock2JavaAnim/
-~SubProjects/
+local.properties

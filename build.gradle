@@ -32,7 +32,20 @@ version = "${config.mod_version}"
 group = "org.zeith.${config.mod_id}"
 archivesBaseName = "${config.mod_id_fancy}-${local.minecraft_version}"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+compileJava {
+    sourceCompatibility = "17"
+    targetCompatibility = "8"
+}
+
+tasks.named("compileJava", JavaCompile) {
+    it.sourceCompatibility = 17
+    it.targetCompatibility = 8
+    it.options.compilerArgs += [
+            "--release", "8",
+            '-Xplugin:jabel',
+    ]
+}
 
 minecraft {
     mappings channel: local.mcp_channel, version: local.mcp_version
@@ -94,7 +107,7 @@ repositories {
         url = "https://jitpack.io"
     }
     flatDir { dirs "libraries/${local.minecraft_version}/all" }
-    flatDir { dirs "libraries/${config.minecraft_version}/mods" }
+    flatDir { dirs "libraries/${local.minecraft_version}/mods" }
     flatDir { dirs "libraries/${local.minecraft_version}/classpathOnly" }
     flatDir { dirs "libraries/${local.minecraft_version}/runtimeOnly" }
 }
@@ -120,6 +133,10 @@ dependencies {
     compileOnly "org.projectlombok:lombok:$lombok"
     annotationProcessor "org.projectlombok:lombok:$lombok"
     compileOnly "org.jetbrains:annotations:$jb_annotations"
+
+    annotationProcessor "com.github.bsideup.jabel:jabel-javac-plugin:$jabel"
+    testAnnotationProcessor "com.github.bsideup.jabel:jabel-javac-plugin:$jabel"
+    compileOnly "com.github.bsideup.jabel:jabel-javac-plugin:$jabel"
     ///////////////////////////
 
     def libraries = new File(file("libraries"), "${local.minecraft_version}")
